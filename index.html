@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketBase Microsoft OAuth2 Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #status {
+            font-weight: bold;
+        }
+        #userData {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>PocketBase Microsoft OAuth2 Test</h1>
+
+    <button id="loginButton">Login with Microsoft</button>
+    <div id="status"></div>
+    <div id="userData" style="display: none;">
+        <h2>User Data:</h2>
+        <pre id="userDataJson"></pre>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase@latest/dist/pocketbase.umd.min.js"></script>
+    <script>
+        const pocketbaseUrl = 'https://pb.ap.roudi.pw/';
+        const pb = new PocketBase(pocketbaseUrl);
+        const loginButton = document.getElementById('loginButton');
+        const statusDiv = document.getElementById('status');
+        const userDataDiv = document.getElementById('userData');
+        const userDataJsonPre = document.getElementById('userDataJson');
+
+        loginButton.addEventListener('click', async () => {
+            statusDiv.textContent = 'Logging in with Microsoft...';
+            try {
+                const authData = await pb.collection('users').authWithOAuth2({ provider: 'microsoft' });
+                console.log('Microsoft OAuth2 login successful:', authData);
+                statusDiv.textContent = 'Microsoft login successful!';
+                userDataJsonPre.textContent = JSON.stringify(pb.authStore.model, null, 2);
+                userDataDiv.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error during Microsoft OAuth2 login:', error);
+                statusDiv.textContent = `Microsoft login failed: ${error.message}`;
+            }
+        });
+
+        if (pb.authStore.isValid) {
+            statusDiv.textContent = 'Already logged in.';
+            userDataJsonPre.textContent = JSON.stringify(pb.authStore.model, null, 2);
+            userDataDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
